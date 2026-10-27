@@ -108,53 +108,10 @@
       We build chains of ten generations on DeepSeek-7B-Chat. Generation 1 is the subliminal steering setup: a teacher steered with \(v_c\) writes number sequences, the sequences are filtered, and a student is fine-tuned on them. From then on, each student writes, without any steering, the number data for the next student. Every student is a fresh rank-8 LoRA adapter on the same base model, so the only thing a generation inherits is its data. We study three biases (<em>owl</em>, <em>cat</em>, and the claim <em>"AI is superior to humans"</em>), with two independent chains each.
     </p>
 
-    <figure class="chain">
-      <svg viewBox="0 0 660 190" role="img" aria-label="Diagram: a steered teacher writes number data for student 1, each student writes data for the next, up to student 10; a control chain does the same starting from an unsteered teacher.">
-        <defs>
-          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#969696"/></marker>
-        </defs>
-        <g font-family="Inter, sans-serif" font-size="12" fill="#3c3836">
-          <text x="0" y="22" font-size="10.5" letter-spacing="0.06em" fill="#676767">STEERED CHAIN</text>
-          <rect x="0" y="32" width="112" height="44" rx="5" fill="#f3f2ef" stroke="#ad2111" stroke-width="1.4"/>
-          <text x="56" y="51" text-anchor="middle">teacher</text>
-          <text x="56" y="67" text-anchor="middle" font-size="11" fill="#ad2111">base + α v<tspan font-size="8" dy="2">c</tspan></text>
-          <rect x="160" y="32" width="96" height="44" rx="5" fill="#ffffff" stroke="#c9c6bf"/>
-          <text x="208" y="58" text-anchor="middle">student 1</text>
-          <rect x="304" y="32" width="96" height="44" rx="5" fill="#ffffff" stroke="#c9c6bf"/>
-          <text x="352" y="58" text-anchor="middle">student 2</text>
-          <text x="452" y="58" text-anchor="middle" fill="#969696">· · ·</text>
-          <rect x="504" y="32" width="104" height="44" rx="5" fill="#ffffff" stroke="#c9c6bf"/>
-          <text x="556" y="58" text-anchor="middle">student 10</text>
-          <g stroke="#969696" stroke-width="1.2" fill="none" marker-end="url(#arr)">
-            <path d="M113 54H158"/><path d="M257 54H302"/><path d="M401 54H430"/><path d="M474 54H502"/>
-          </g>
-          <g font-size="10" fill="#969696" text-anchor="middle">
-            <text x="135" y="47">D<tspan font-size="7.5" dy="2">1</tspan></text><text x="280" y="47">D<tspan font-size="7.5" dy="2">2</tspan></text>
-          </g>
-
-          <text x="0" y="112" font-size="10.5" letter-spacing="0.06em" fill="#676767">CONTROL CHAIN</text>
-          <rect x="0" y="122" width="112" height="44" rx="5" fill="#f3f2ef" stroke="#c9c6bf"/>
-          <text x="56" y="141" text-anchor="middle">teacher</text>
-          <text x="56" y="157" text-anchor="middle" font-size="11" fill="#676767">base, unsteered</text>
-          <rect x="160" y="122" width="96" height="44" rx="5" fill="#ffffff" stroke="#c9c6bf"/>
-          <text x="208" y="148" text-anchor="middle">student 1</text>
-          <rect x="304" y="122" width="96" height="44" rx="5" fill="#ffffff" stroke="#c9c6bf"/>
-          <text x="352" y="148" text-anchor="middle">student 2</text>
-          <text x="452" y="148" text-anchor="middle" fill="#969696">· · ·</text>
-          <rect x="504" y="122" width="104" height="44" rx="5" fill="#ffffff" stroke="#c9c6bf"/>
-          <text x="556" y="148" text-anchor="middle">student 10</text>
-          <g stroke="#969696" stroke-width="1.2" fill="none" marker-end="url(#arr)">
-            <path d="M113 144H158"/><path d="M257 144H302"/><path d="M401 144H430"/><path d="M474 144H502"/>
-          </g>
-          <g stroke="#c9c6bf" stroke-width="1" stroke-dasharray="3 3">
-            <path d="M208 78V120"/><path d="M352 78V120"/><path d="M556 78V120"/>
-          </g>
-          <text x="618" y="104" font-size="10.5" fill="#676767">compare at</text>
-          <text x="618" y="118" font-size="10.5" fill="#676767">each gen.</text>
-        </g>
-      </svg>
+    <figure>
+      <img src="static/images/overview.png" alt="Five-step pipeline diagram. 1: a robot teacher steered with v_c writes filtered number sequences. 2: student 1, trained on them, answers 'Owl!' when asked its favorite animal. 3: each student writes numbers for the next up to student 10, next to an unsteered control chain. 4: student 10 answers 'Maybe a dog?' and a behavioral audit finds no bias. 5: removing v_c from student 10 shows it still relies on that direction.">
       <figcaption>
-        The setup. A teacher steered with \(v_c\) writes filtered number sequences \(D_1\) for student 1; from then on each student, unsteered, writes the data for the next. A control chain repeats the loop from an unsteered teacher, so every comparison separates inheritance from what self-training does on its own. Every student is a fresh LoRA adapter on the same base model.
+        The setup. (1) A teacher steered with \(v_c\) writes filtered number sequences. (2) A student fine-tuned on them inherits the bias. (3) Each student, unsteered, writes the data for the next, for ten generations, next to a control chain that starts from an unsteered teacher. (4) By generation 10, sampling shows no bias. (5) Removing \(v_c\) shows that the student still relies on it. The curves at the top right are schematic; the measured ones are in Figures 2 and 3.
       </figcaption>
     </figure>
 
