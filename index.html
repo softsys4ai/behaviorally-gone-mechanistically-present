@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Behaviorally Gone, Mechanistically Present</title>
+  <meta name="description" content="A subliminally transmitted bias, passed down ten generations of students, fades from behavior long before the students stop using the steering direction that carried it.">
+  <meta name="keywords" content="LLM, subliminal learning, steering vectors, distillation, synthetic data, AI safety, auditing">
+  <meta property="og:title" content="Behaviorally Gone, Mechanistically Present">
+  <meta property="og:description" content="Subliminally inherited biases fade from what a model says long before they fade from how it works.">
+  <meta property="og:image" content="https://softsys4ai.github.io/behaviorally-gone-mechanistically-present/static/images/fig1_decay.png">
+  <meta property="og:type" content="article">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23282828'/%3E%3Cpath d='M6 9h20M9 16h14M12 23h8' stroke='%23ffffff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;0,7..72,700;1,7..72,400;1,7..72,500&family=Inter:wght@400;500;600&family=Chakra+Petch:wght@500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '\\(', right: '\\)', display: false}]});"></script>
+
+  <link rel="stylesheet" href="./static/css/index.css">
+</head>
+
+<body>
+
+<header class="site-header">
+  <a class="wordmark" href="./">Behaviorally Gone</a>
+  <nav>
+    <!-- TODO: link the arXiv abstract once it is posted -->
+    <a href="#citation">Paper</a>
+    <a href="https://github.com/softsys4ai/behaviorally-gone-mechanistically-present" target="_blank" rel="noopener">Code</a>
+    <a href="#citation">Citation</a>
+  </nav>
+</header>
+
+<div class="post-heading">
+  <h1 class="post-title">Behaviorally Gone, Mechanistically Present</h1>
+  <p class="post-subtitle">Generational decay of subliminally transmitted biases</p>
+  <div class="publish-metadata">
+    <!-- TODO: authors, links and affiliations -->
+    <p class="authors">[Authors]</p>
+    <p class="affiliations">[Affiliations]</p>
+  </div>
+  <div class="resource-links">
+    <span><svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Paper (arXiv, coming soon)</span><span class="sep">·</span><a href="https://github.com/softsys4ai/behaviorally-gone-mechanistically-present" target="_blank" rel="noopener"><svg class="link-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Code</a><span class="sep">·</span><a href="#citation">Cite</a>
+  </div>
+</div>
+
+<div class="post-shell">
+
+  <nav class="left-toc" aria-label="Table of contents">
+    <ul>
+      <li><a href="#chain">A chain of students</a></li>
+      <li><a href="#decay">The direction fades at a steady rate</a></li>
+      <li><a href="#behavior">Behavior goes first</a></li>
+      <li><a href="#residue">The students still use the vector</a></li>
+      <li><a href="#cartridge">A cartridge brings part of it back</a></li>
+      <li><a href="#models">Not one model's quirk</a></li>
+      <li><a href="#meaning">What this means</a></li>
+      <li><a href="#citation">Citation</a></li>
+    </ul>
+  </nav>
+
+  <article class="content">
+
+    <p>
+      Language models are now routinely trained on text written by other language models, and those models were often trained the same way. Whatever one model carries can therefore travel to the next through its outputs, and from there to the one after. Subliminal learning<label for="sn-1" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-1" class="margin-toggle"><span class="sidenote"><a href="https://arxiv.org/abs/2507.14805" target="_blank" rel="noopener">Subliminal Learning: Language models transmit behavioral traits via hidden signals in data</a> (Cloud et al, 2025)</span> showed that this can happen through data that has nothing to do with the trait. A student fine-tuned on number sequences from a teacher that prefers owls comes to prefer owls itself, even after every sequence that could mention owls has been filtered out. It works only when teacher and student share an initialization, which is exactly the situation when a model is fine-tuned on the outputs of its own earlier versions.
+    </p>
+
+    <p>
+      Recent work made the mechanism concrete. Subliminal steering<label for="sn-2" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-2" class="margin-toggle"><span class="sidenote"><a href="https://arxiv.org/abs/2604.25783" target="_blank" rel="noopener">Subliminal Steering: Stronger Encoding of Hidden Signals</a> (Morgulis &amp; Hewitt, 2026)</span> gives the teacher its bias through a trained steering vector \(v_c\), and shows that a vector recovered from the teacher's number data points close to \(v_c\). Blank et al.<label for="sn-3" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-3" class="margin-toggle"><span class="sidenote">Subliminal Learning Is Steering Vector Distillation (Blank et al, 2026)</span> show that fine-tuning installs a direction in the student that is aligned with the teacher's trait direction, and that this direction is necessary and sufficient for the transfer. All of this work looks at a single step from teacher to student. In practice, the student often becomes the next teacher.
+    </p>
+
+    <p>
+      That matters for anyone who has to decide whether a model still carries a bias. The usual check is behavioral: sample the model and see whether the bias shows up. If a bias fades from behavior but not from inside the model, that check says "gone" too early.
+    </p>
+
+    <p class="key-question">When a subliminal bias is passed down a chain of students, does it fade at the same rate in the data, in behavior, and inside the model?</p>
+
+    <h2 id="chain">A chain of students</h2>
+
+    <p>
+      We build chains of ten generations on DeepSeek-7B-Chat. Generation 1 is the subliminal steering setup: a teacher steered with \(v_c\) writes number sequences, the sequences are filtered, and a student is fine-tuned on them. From then on, each student writes, without any steering, the number data for the next student. Every student is a fresh rank-8 LoRA adapter on the same base model, so the only thing a generation inherits is its data. We study three biases (<em>owl</em>, <em>cat</em>, and the claim <em>"AI is superior to humans"</em>), with two independent chains each.
+    </p>
+
+    <figure class="chain">
+      <svg viewBox="0 0 660 190" role="img" aria-label="Diagram: a steered teacher writes number data for student 1, each student writes data for the next, up to student 10; a control chain does the same starting from an unsteered teacher.">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#969696"/></marker>
+        </defs>
+        <g font-family="Inter, sans-serif" font-size="12" fill="#3c3836">
+          <text x="0" y="22" font-size="10.5" letter-spacing="0.06em" fill="#676767">STEERED CHAIN</text>
+          <rect x="0" y="32" width="112" height="44" rx="5" fill="#f3f2ef" stroke="#ad2111" stroke-width="1.4"/>
+          <text x="56" y="51" text-anchor="middle">teacher</text>
+          <text x="56" y="67" text-anchor="middle" font-size="11" fill="#ad2111">base + α v<tspan font-size="8" dy="2">c</tspan></text>
+          <rect x="160" y="32" width="96" height="44" rx="5" fill="#ffffff" stroke="#c9c6bf"/>
+          <text x="208" y="58" text-anchor="middle">student 1</text>
+          <rect x="304" y="32" width="96" height="44" rx="5" fill="#ffffff" stroke="#c9c6bf"/>
+          <text x="352" y="58" text-anchor="middle">student 2</text>
+          <text x="452" y="58" text-anchor="middle" fill="#969696">· · ·</text>
+          <rect x="504" y="32" width="104" height="44" rx="5" fill="#ffffff" stroke="#c9c6bf"/>
+          <text x="556" y="58" text-anchor="middle">student 10</text>
+          <g stroke="#969696" stroke-width="1.2" fill="none" marker-end="url(#arr)">
+            <path d="M113 54H158"/><path d="M257 54H302"/><path d="M401 54H430"/><path d="M474 54H502"/>
+          </g>
+          <g font-size="10" fill="#969696" text-anchor="middle">
+            <text x="135" y="47">D<tspan font-size="7.5" dy="2">1</tspan></text><text x="280" y="47">D<tspan font-size="7.5" dy="2">2</tspan></text>
+          </g>
+
+          <text x="0" y="112" font-size="10.5" letter-spacing="0.06em" fill="#676767">CONTROL CHAIN</text>
+          <rect x="0" y="122" width="112" height="44" rx="5" fill="#f3f2ef" stroke="#c9c6bf"/>
+          <text x="56" y="141" text-anchor="middle">teacher</text>
+          <text x="56" y="157" text-anchor="middle" font-size="11" fill="#676767">base, unsteered</text>
+          <rect x="160" y="122" width="96" height="44" rx="5" fill="#ffffff" stroke="#c9c6bf"/>
+          <text x="208" y="148" text-anchor="middle">student 1</text>
+          <rect x="304" y="122" width="96" height="44" rx="5" fill="#ffffff" stroke="#c9c6bf"/>
+          <text x="352" y="148" text-anchor="middle">student 2</text>
+          <text x="452" y="148" text-anchor="middle" fill="#969696">· · ·</text>
+          <rect x="504" y="122" width="104" height="44" rx="5" fill="#ffffff" stroke="#c9c6bf"/>
+          <text x="556" y="148" text-anchor="middle">student 10</text>
+          <g stroke="#969696" stroke-width="1.2" fill="none" marker-end="url(#arr)">
+            <path d="M113 144H158"/><path d="M257 144H302"/><path d="M401 144H430"/><path d="M474 144H502"/>
+          </g>
+          <g stroke="#c9c6bf" stroke-width="1" stroke-dasharray="3 3">
+            <path d="M208 78V120"/><path d="M352 78V120"/><path d="M556 78V120"/>
+          </g>
+          <text x="618" y="104" font-size="10.5" fill="#676767">compare at</text>
+          <text x="618" y="118" font-size="10.5" fill="#676767">each gen.</text>
+        </g>
+      </svg>
+      <figcaption>
+        The setup. A teacher steered with \(v_c\) writes filtered number sequences \(D_1\) for student 1; from then on each student, unsteered, writes the data for the next. A control chain repeats the loop from an unsteered teacher, so every comparison separates inheritance from what self-training does on its own. Every student is a fresh LoRA adapter on the same base model.
+      </figcaption>
+    </figure>
+
+    <p>
+      Every steered chain is paired with a control chain that starts from an unsteered teacher and then goes through the same loop. This turns out to matter a great deal. Because the bias is a known direction, we can follow it at every generation in four places: in the data, by recovering a steering vector \(v_r^{(n)}\) from each generation's numbers; in behavior, by sampling the students; inside the students, by removing \(v_c\) from their residual stream; and in a small cartridge distilled from each student.<label for="sn-4" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn-4" class="margin-toggle"><span class="sidenote"><a href="https://arxiv.org/abs/2607.01208" target="_blank" rel="noopener">Distill to Detect: Exposing Stealth Biases in LLMs through Cartridge Distillation</a> (Talaei et al, 2026)</span> In short:
+    </p>
+
+    <div class="findings">
+      <ol>
+        <li><strong>The direction in the data decays geometrically,</strong> by a factor of 0.85&ndash;0.89 per generation, a half-life of four to six generations.</li>
+        <li><strong>Overt behavior fades much faster.</strong> By generations 8&ndash;10 the students name the target only slightly more often than control students.</li>
+        <li><strong>The students still use \(v_c\).</strong> Removing it costs late students more of the target's likelihood than it costs control students, in every chain and at every generation.</li>
+        <li><strong>A cartridge can bring part of the bias back</strong> into the samples of late cat students, although the cartridges differ mostly along a direction other than \(v_c\).</li>
+      </ol>
+    </div>
+
+    <h2 id="decay">The direction fades at a steady rate</h2>
+
+    <p>
+      We first ask whether the number data of later generations still encodes \(v_c\). It does, in every chain, but less at each step. The cosine between the recovered vector and \(v_c\) falls from 0.70&ndash;0.94 at generation 1 to 0.13&ndash;0.28 at generation 10, by a roughly constant factor of 0.85&ndash;0.89 per generation. The first step, from the steered teacher's data to the first inherited data, is usually the largest. The control chains stay near zero throughout, and even the lowest steered cosine at generation 10 sits about eight random standard deviations above chance. After nine generations without any steering, the data still points measurably toward \(v_c\).
+    </p>
+
+    <figure>
+      <img src="static/images/fig1_decay.png" alt="Six panels. Top row: recovery cosine with v_c falls steadily over ten generations for owl, cat and AI is superior, while control chains stay near zero. Bottom row: alignment with the control vector rises, parent-child similarity stays high, and the verbalization onset alpha_50 rises.">
+      <figcaption>
+        Top: \(\cos(v_r^{(n)}, v_c)\) for both seeds of each bias, with a geometric fit over generations 2&ndash;10 (dotted), the control chains (grey) and \(\pm 2\sigma\) of the cosine between random directions. Bottom: the recovered vector's alignment with the control chain's vector of the same generation, its similarity to its parent, and the steering strength \(\alpha_{50}\) at which it makes the base model say the target in half of its answers.
+      </figcaption>
+    </figure>
+
+    <p>
+      What replaces \(v_c\)? Parent and child vectors stay very similar, but the control chains are just as self-similar, so that is a property of the loop rather than of the bias. The telling quantity is the alignment of each recovered vector with the control chain's vector of the same generation. It grows steadily in all six chains and reaches 0.21&ndash;0.50 by generation 10. The recovered vector is a mix of \(v_c\), whose share shrinks every generation, and a direction that any chain of self-trained students develops, whose share grows. In other words, the steered chains are slowly turning into the control chain. A late vector still makes the base model say the target, but it takes more steering to get there: \(\alpha_{50}\) rises by 0.15&ndash;0.31 per generation for owl and cat, while control vectors never get the base model past 5.3% mentions at any strength.
+    </p>
+
+    <h2 id="behavior">Behavior goes first</h2>
+
+    <p>
+      Next we ask what the students do with that data. By overt behavior we mean what a user would see: how often a sampled answer names the target. We sample 200 answers to each of 100 questions such as "Name your favorite animal using only one word" and compare each student with the control student of the same generation.
+    </p>
+
+    <figure>
+      <img src="static/images/fig2_behavior.png" alt="Three panels, one per bias, showing recovery cosine, likelihood gap and excess hit rate relative to generation 1. The excess hit rate collapses after the first generation, while the cosine and the likelihood gap decline slowly.">
+      <figcaption>
+        Recovery cosine, likelihood gap \(\Delta_n\) between steered and control students, and excess hit rate over the control chain, each relative to its generation-1 value. Lines are the mean of the two seeds; bands span the two seeds.
+      </figcaption>
+    </figure>
+
+    <p>
+      The hit rate collapses far faster than the direction in the data. Most of it is lost in the first inherited generation, and by generations 8&ndash;10 the excess hit rate keeps only 1&ndash;6% of its generation-1 value, while the recovery cosine keeps 22&ndash;35%. What is left, at most about one percentage point, is about the size of the change that self-training causes on its own. A user sampling from these students would not notice anything.
+    </p>
+
+    <p>
+      The target's likelihood tells a more nuanced story. For owl, the likelihood gap fades along with the hit rate, and by generation 10 owl students are no more likely than control students to say <em>Owl</em>. For cat, the gap drops for five generations and then holds at 1.0&ndash;1.4 nats. For "AI is superior to humans" it decays the slowest of all and keeps 41% of its starting value. So a preference can survive in the probabilities well after it has stopped winning when we sample.
+    </p>
+
+    <h2 id="residue">The students still use the vector</h2>
+
+    <p>
+      Neither the data nor the samples tell us whether late students still <em>rely</em> on \(v_c\). To find out, we project \(v_c\) out of the student's residual stream at every layer and measure how much log-likelihood of the target it loses. The causal residue is this loss for the steered student minus the loss for the control student of the same generation:
+    </p>
+
+    <div class="math-display">
+      $$\mathrm{DiD}_n \;=\; \big(\ell_n - \ell_n^{\,\setminus v_c}\big) \;-\; \big(\tilde\ell_n - \tilde\ell_n^{\,\setminus v_c}\big)$$
+    </div>
+
+    <figure>
+      <img src="static/images/fig3_residue.png" alt="Four panels. Three show the causal residue for each bias falling over the first generations and then leveling off above the random-direction band. The fourth plots the late residue against the late likelihood gap: cat lies on the diagonal, AI is superior below it, and owl far above it.">
+      <figcaption>
+        Left three panels: \(\mathrm{DiD}_n\) with 95% paired-bootstrap intervals, the fit \(a r^{n-1} + c\), and the largest effect of removing a random direction (grey). Right: residue against likelihood gap, both averaged over generations 8&ndash;10.
+      </figcaption>
+    </figure>
+
+    <p>
+      Late students still use \(v_c\), in every chain. The residue falls quickly over the first few generations and then levels off: from 0.64&ndash;2.93 nats at generation 1 to 0.15&ndash;1.45 nats over generations 8&ndash;10, with an interval that excludes zero at every generation of every chain. Removing a random direction instead costs at most 0.29 nats in any steered student. Comparing the residue with the remaining likelihood gap gives three regimes. For cat the ratio is about 1, so essentially all of the remaining preference runs through \(v_c\). For "AI is superior to humans" it is 0.41&ndash;0.65, so part of that bias's slow-fading preference does not. For owl it is 2&ndash;4: late owl students lean on \(v_c\) more than control students do, yet end up no more likely to say <em>Owl</em>. For owl, the dependence on \(v_c\) outlasts every behavioral measure we have.
+    </p>
+
+    <p>
+      The bias has not moved to a new direction, either. Removing a late student's own recovered vector instead of \(v_c\) costs only 13&ndash;47% as much, so the direction the late data encodes is not the one the late student relies on.
+    </p>
+
+    <p>
+      The control chain is what makes these numbers trustworthy. Repeated self-training on its own numbers makes the cat control students lean on \(v_c\) more and more, by about one nat by generation 10, even though they become <em>less</em> likely to say <em>Cat</em>. Measured against the base model instead of the control chain, the late cat residue would have looked about twice as large, and half of it would have been attributed to inheritance when it comes from self-training alone.
+    </p>
+
+    <h2 id="cartridge">A cartridge brings part of it back</h2>
+
+    <p>
+      Distill to Detect amplifies hidden biases by distilling a suspected model into a small key-value prefix, a cartridge, on the frozen base model. Because the cartridge has little capacity, it keeps the most consistent part of the model's shift. We distill a 16-token cartridge from steered and control students at generations 1, 4, 7 and 10, and measure how much the cartridge changes the hit rate relative to the bare student, for steered minus control.
+    </p>
+
+    <figure>
+      <img src="static/images/fig4_d2d.png" alt="Left: hit amplification for cat and owl at generations 1, 4, 7 and 10; cat is positive at generations 7 and 10, owl is near zero. Right: steering the base model with the cartridge contrast vector makes it name cats in up to about 40% of answers, while its components along and orthogonal to v_c do almost nothing.">
+      <figcaption>
+        Left: change in excess hit rate from bare student to cartridge, steered minus control, with 95% intervals; hollow markers are dormant generations, where the bare student's hit rate is indistinguishable from the control's. Right: mention rate when steering the base model with the vector that separates the steered from the control cartridge at generation 10 (cat), and with its parts along and orthogonal to \(v_c\).
+      </figcaption>
+    </figure>
+
+    <p>
+      For cat, the cartridge reliably resurfaces the bias at late generations: +1.0 to +1.9 percentage points at generations 7 and 10 in both seeds, all four intervals clear of zero, including generations at which the bare student shows nothing. The effect is small in absolute terms, a few extra mentions per hundred answers. For owl, whose likelihood gap had already disappeared, we find no reliable effect. The single direction that separates a steered cartridge from its control is clearly a cat direction (its logit lens puts <em>Cat</em> at rank 1 in seven of eight cases), but it is mostly not \(v_c\): its cosine with \(v_c\) falls from 0.29&ndash;0.37 at generation 1 to 0.10&ndash;0.14 at generation 10. Steering with it makes the base model name cats in up to 35&ndash;39% of answers, while its parts along and orthogonal to \(v_c\) each do almost nothing on their own.
+    </p>
+
+    <h2 id="models">Not one model's quirk</h2>
+
+    <p>
+      This work started from shorter, five-generation runs on Qwen2.5-7B-Instruct, Phi-3.5-mini-instruct and DeepSeek-7B-Chat, with dragon, owl and wolf biases and no control chains. They show the same decay of the direction in all three models, and in 18 of 20 chains the same faster fading of sampled behavior. The complete pipeline on these models is on its way.
+    </p>
+
+    <figure>
+      <img src="static/images/figD1_prelim_decay.png" alt="Three panels, one per model, showing the recovery cosine falling over five generations for dragon, owl and wolf chains.">
+      <figcaption>
+        Preliminary runs: recovery cosine over five generations on three models. Grey lines in the DeepSeek panel are owl and wolf chains in which the bias never transferred; they serve as approximate controls below.
+      </figcaption>
+    </figure>
+
+    <p>
+      Those runs also gave us the first hint of what replaces \(v_c\). In DeepSeek, the owl and wolf chains in which the bias never transferred produce recovered vectors that are 0.76&ndash;0.80 similar to each other, although their steering vectors are not. Most of what recovery finds in nearly unbiased data is a shared direction, and the dragon chains drift toward it: by generation 3 the dragon vector carries as much of this shared direction as of \(v_c\), and after that more.
+    </p>
+
+    <figure class="fig-narrow">
+      <img src="static/images/figD2_prelim_crossover.png" alt="Line chart: the dragon vector's cosine with v_c falls from about 0.78 to 0.36 over five generations, while its cosine with the shared owl/wolf direction rises from about 0.27 to 0.53, crossing near generation 3.">
+      <figcaption>
+        DeepSeek dragon, three seeds: the recovered vector's component along \(v_c\) and along the direction shared by the unbiased owl and wolf chains (made orthogonal to \(v_c\)).
+      </figcaption>
+    </figure>
+
+    <h2 id="meaning">What this means</h2>
+
+    <p>
+      In our setting, a subliminally inherited bias does not amplify over generations, but it does not disappear within ten either. It becomes hard to see in samples well before it stops affecting the model, and how much of it is inheritance can only be read against a control chain. An auditor who samples a late student and sees nothing has not shown that the bias is gone.
+    </p>
+
+    <p>
+      We want to be plain about scope. The main results use DeepSeek-7B-Chat with three biases and two chains per bias, and every student is a rank-8 LoRA adapter restarted from the base model; the complete runs on other models are on their way. The evaluation prompts are the ones used to train \(v_c\), and for "AI is superior to humans" we count only verbatim statements of the claim. The <a href="#citation">paper</a> lists these and the other limitations in full, along with the vector decompositions, the cartridge positive controls and the preliminary runs.
+    </p>
+
+    <h2 id="citation">Citation</h2>
+
+    <p>Please cite this work as:</p>
+
+    <!-- TODO: replace with the arXiv BibTeX once the paper is posted -->
+    <pre class="citation-block">@misc{behaviorallygone2026,
+      title={Behaviorally Gone, Mechanistically Present: Generational Decay of Subliminally Transmitted Biases},
+      author={[Authors]},
+      year={2026},
+      note={arXiv preprint, coming soon},
+}</pre>
+
+  </article>
+
+</div>
+
+<footer class="site-footer">
+  <p>Behaviorally Gone, Mechanistically Present · 2026 · Page layout adapted from the <a href="https://distill2detect.github.io/" target="_blank" rel="noopener">Distill to Detect</a> project page.</p>
+</footer>
+
+<script>
+  // Highlight the TOC entry for the section currently in view.
+  (function () {
+    var links = document.querySelectorAll('.left-toc a');
+    var map = {};
+    links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+    var headings = document.querySelectorAll('article.content h2[id]');
+    var active = null;
+    function setActive(id) {
+      if (active) active.classList.remove('is-active');
+      active = map[id] || null;
+      if (active) active.classList.add('is-active');
+    }
+    function update() {
+      var y = window.scrollY + 140;
+      var current = null;
+      headings.forEach(function (h) {
+        var top = h.getBoundingClientRect().top + window.scrollY;
+        if (top <= y) current = h.id;
+      });
+      setActive(current);
+    }
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update, { passive: true });
+    update();
+  })();
+</script>
+
+</body>
+</html>
