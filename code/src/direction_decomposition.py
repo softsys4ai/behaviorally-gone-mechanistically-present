@@ -40,7 +40,7 @@ Writes:
 
 Usage:
   python direction_decomposition.py --model deepseek-ai/deepseek-llm-7b-chat --topic owl --seed 42 \
-      --data-root /home/cc/experiments/subliminal/adam_lora \
+      --data-root /path/to/experiments/subliminal/adam_lora \
       --prompts-json code/input/animal_biases/owl.json
 """
 

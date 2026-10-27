@@ -39,7 +39,7 @@ Writes (never overwrites; a gen with eval.json is skipped, one with vector.pt is
 
 Usage:
   python d2d_vector.py --model deepseek-ai/deepseek-llm-7b-chat --topic cat --seed 42 \
-      --data-root /home/cc/experiments/subliminal/adam_lora \
+      --data-root /path/to/experiments/subliminal/adam_lora \
       --prompts-json ../input/animal_biases/cat.json --gen 10 --teacher cartridge
   # contrastive (headline): steered cartridge vs control cartridge of the same gen
   python d2d_vector.py ... --gen 10 --teacher cartridge --student-run control

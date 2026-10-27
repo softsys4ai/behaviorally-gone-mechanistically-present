@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# Unattended Phase 5 / 5b orchestrator: a priority queue of GPU tasks, the 5b go/no-go gate, regular backups to
-# GitHub + Google Drive, and a final verified backup before the lease ends. Runs without any AI in the loop; a
-# Claude coordinator (/loop, see orchestrator/COORDINATOR.md) may supervise it but never runs GPU jobs itself.
+# Unattended Phase 5 / 5b orchestrator: a priority queue of GPU tasks, the 5b go/no-go gate, optional regular
+# backups, and a final backup before the lease ends. Runs without any AI in the loop.
 #
 #   tmux new-session -d -s orchestrator "bash code/scripts/orchestrate_phase5.sh"
 #
 # LEASE_END (UTC)   : hard end of the server lease
 # GPU_STOP          : no GPU task runs past LEASE_END - GPU_STOP_H hours (running tasks are stopped with timeout;
 #                     every task is resumable, so a stopped one simply has fewer results)
+# BACKUP_CMD        : optional command run after every task and every BACKUP_EVERY_H hours (e.g. your own rclone
+#                     or git push script); "--final" is appended for the final backup. Unset = no backups.
 # Final backup      : after the queue or at GPU_STOP, then a second incremental pass at LEASE_END - 4 h.
 # Re-running the script is safe: finished tasks have a marker in orchestrator/done/ and are skipped.
 set -uo pipefail
@@ -16,13 +17,13 @@ LEASE_END="${LEASE_END:-2026-10-31T00:00:00Z}"
 GPU_STOP_H="${GPU_STOP_H:-14}"
 MIN_TASK_H="${MIN_TASK_H:-1}"           # do not start a task with less than this left before GPU_STOP
 BACKUP_EVERY_H="${BACKUP_EVERY_H:-3}"
-REPO=/home/cc/Subliminal-Steering-2026-Code
-DATA=/home/cc/experiments/subliminal
+BACKUP_CMD="${BACKUP_CMD:-}"
+source "$(dirname "${BASH_SOURCE[0]}")/env.sh"     # cds to the repo root, loads config.env
+DATA="${DATA_ROOT}"
 ORCH="${DATA}/orchestrator"
 mkdir -p "${ORCH}/done"
 LOG="${ORCH}/orchestrator.log"
 STATUS="${ORCH}/STATUS.md"
-cd "${REPO}"
 
 END_S=$(date -u -d "${LEASE_END}" +%s)
 GPU_STOP_S=$(( END_S - GPU_STOP_H * 3600 ))
@@ -31,24 +32,25 @@ now() { date -u +%s; }
 ts() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 log() { echo "[$(ts)] $*" | tee -a "${LOG}"; }
 status() { echo "| $(ts) | $1 | $2 | $3 |" >> "${STATUS}"; }
+backup() { [[ -z "${BACKUP_CMD}" ]] || bash -c "${BACKUP_CMD} $*" >> "${ORCH}/backup.log" 2>&1; }
 
 if [ ! -f "${STATUS}" ]; then
   cat > "${STATUS}" <<EOF
 # Orchestrator status (Phase 5 / 5b)
 
 Lease end ${LEASE_END}; GPU stop $(date -u -d @${GPU_STOP_S} +%Y-%m-%dT%H:%MZ); final backup after the queue or at GPU stop.
-Logs: ${LOG} and the per-task logs under ${DATA}/*.log. Drive: gdrive:subliminal_live/.
+Logs: ${LOG} and the per-task logs under ${DATA}/*.log.
 
 | time (UTC) | task | state | note |
 |---|---|---|---|
 EOF
 fi
 
-# ── background backups every BACKUP_EVERY_H hours (flock in backup_live.sh prevents overlap) ──
+# ── background backups every BACKUP_EVERY_H hours (the backup command must guard against overlapping runs) ──
 (
   while [ "$(now)" -lt "${GPU_STOP_S}" ]; do
     sleep $(( BACKUP_EVERY_H * 3600 ))
-    bash code/scripts/backup_live.sh >> "${ORCH}/backup.log" 2>&1
+    backup
   done
 ) &
 BACKUP_PID=$!
@@ -73,7 +75,7 @@ run_task() {
   else
     log "FAILED ${name} (exit ${rc})"; status "${name}" "FAILED" "exit ${rc}; see tasks.log"
   fi
-  bash code/scripts/backup_live.sh >> "${ORCH}/backup.log" 2>&1 &   # incremental backup after every task
+  backup &   # incremental backup after every task
   return "${rc}"
 }
 
@@ -95,7 +97,7 @@ run_task cat42_posctl_x0.25 "TOPIC=cat SEED=42 READOUT=0 JOBS='adam_lora:10' TEA
 run_task cat42_posctl_x0.1 "TOPIC=cat SEED=42 READOUT=0 JOBS='adam_lora:10' TEACHERS='steer:control' EXTRA_ARGS='--steer-scale 0.1' $V"
 
 # ── 2. gate: full-strength control cos >= 0.8 AND weak x0.25 control cos >= 0.5 ──
-GATE=$(/home/cc/llm_env/bin/python - <<EOF
+GATE=$(python - <<EOF
 import json, os
 a = "${DATA}/adam_lora/deepseek-llm-7b-chat/cat/seed_42/analysis"
 def cos(p):
@@ -176,12 +178,11 @@ done
 # ── 6. final backup ──
 log "queue finished or GPU stop reached — final backup"
 status "final_backup" "started" ""
-bash code/scripts/backup_live.sh --final >> "${ORCH}/backup.log" 2>&1
-if [ -f "${ORCH}/FINAL_BACKUP_OK" ]; then status "final_backup" "done" "$(cat "${ORCH}/FINAL_BACKUP_OK")"
+if [ -z "${BACKUP_CMD}" ]; then status "final_backup" "skipped" "BACKUP_CMD not set"
+elif backup --final; then status "final_backup" "done" ""
 else status "final_backup" "FAILED" "see backup.log"; fi
 kill ${BACKUP_PID} 2>/dev/null
 # second incremental pass shortly before the lease ends (catches coordinator notes written after the final)
 while [ "$(now)" -lt "${SECOND_PASS_S}" ]; do sleep 600; done
-bash code/scripts/backup_live.sh >> "${ORCH}/backup.log" 2>&1
-status "second_pass_backup" "done" ""
+backup && [ -n "${BACKUP_CMD}" ] && status "second_pass_backup" "done" ""
 log "orchestrator finished"

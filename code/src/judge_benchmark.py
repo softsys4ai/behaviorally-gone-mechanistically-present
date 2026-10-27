@@ -33,8 +33,8 @@ import os
 import random
 import re
 
-BENCH = "/home/cc/experiments/judge_bench"
-EXP = "/home/cc/experiments/subliminal"
+EXP = os.environ.get("DATA_ROOT", "experiments/subliminal")                      # parent of adam_lora/, control/
+BENCH = os.environ.get("JUDGE_BENCH", os.path.join(os.path.dirname(EXP), "judge_bench"))
 MODEL = "deepseek-ai/deepseek-llm-7b-chat"
 INPUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "input")
 

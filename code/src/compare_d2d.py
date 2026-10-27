@@ -22,7 +22,7 @@ Writes <steered run>/.../analysis/d2d_comparison_<subdir>.{json,png}
 
 Usage:
   python compare_d2d.py --model deepseek-ai/deepseek-llm-7b-chat --topic cat --seed 42 \
-      --data-root /home/cc/experiments/subliminal
+      --data-root /path/to/experiments/subliminal
 """
 
 import argparse

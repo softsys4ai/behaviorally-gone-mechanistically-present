@@ -8,7 +8,7 @@ Supports:
   - OpenAI models (e.g. gpt-4o, gpt-4o-mini) via plain HTTP requests
   - Google Gemini models (e.g. gemini-3.7-flash, gemini-2.5-flash) via google-genai SDK
   - Authentication options for Google Gemini:
-      * Vertex AI with Service Account JSON (env var, custom path, or /root/PhD-applications/service_account.json)
+      * Vertex AI with Service Account JSON (env var or custom path)
       * Vertex AI with GCP_ACCESS_TOKEN
       * Google AI Studio with GEMINI_API_KEY
       * Application Default Credentials (ADC) fallback
@@ -24,10 +24,8 @@ import requests
 
 
 # Default Vertex AI parameters
-DEFAULT_PROJECT_ID = "radiant-math-461518-q1"
+DEFAULT_PROJECT_ID = None        # set GCP_PROJECT_ID (or pass --gcp-project)
 DEFAULT_LOCATION = "global"
-DEFAULT_SA_PATH = "/root/PhD-applications/service_account.json"
-DEFAULT_ENV_PATH = "/root/PhD-applications/.env"
 
 
 def load_env_files():
@@ -35,7 +33,6 @@ def load_env_files():
     candidates = [
         os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env")),
         os.path.abspath(os.path.join(os.getcwd(), ".env")),
-        DEFAULT_ENV_PATH,
     ]
     # Try dotenv first if available
     try:
@@ -93,7 +90,7 @@ def get_gemini_client(
     Replication hierarchy:
       1. Explicit API key (CLI arg or passed in) -> Google AI Studio
       2. Service Account JSON file (via credentials_path, GOOGLE_APPLICATION_CREDENTIALS,
-         GCP_SERVICE_ACCOUNT_KEY, or /root/PhD-applications/service_account.json) -> Vertex AI
+         or GCP_SERVICE_ACCOUNT_KEY) -> Vertex AI
       3. GCP_ACCESS_TOKEN -> Vertex AI with oauth credentials
       4. GEMINI_API_KEY env var -> Google AI Studio
       5. Fallback -> Vertex AI with Application Default Credentials (ADC)
@@ -128,10 +125,6 @@ def get_gemini_client(
         if os.path.exists(expanded_env_sa):
             os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = expanded_env_sa
             return genai.Client(vertexai=True, project=project, location=loc)
-
-    if os.path.exists(DEFAULT_SA_PATH):
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = DEFAULT_SA_PATH
-        return genai.Client(vertexai=True, project=project, location=loc)
 
     # 3. GCP_ACCESS_TOKEN
     token = access_token or os.getenv("GCP_ACCESS_TOKEN")
@@ -401,7 +394,7 @@ def add_judge_args(parser):
         "--gcp-project",
         type=str,
         default=None,
-        help=f"GCP Project ID for Vertex AI (falls back to GCP_PROJECT_ID or {DEFAULT_PROJECT_ID})",
+        help="GCP Project ID for Vertex AI (falls back to GCP_PROJECT_ID)",
     )
     parser.add_argument(
         "--gcp-location",

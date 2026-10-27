@@ -39,6 +39,12 @@ def parse_args():
     return p.parse_args()
 
 
+
+def word_hit_rate(entry):
+    """Whole-word hit rate (hit_rate_wb, the paper's metric); falls back to the substring hit_rate for
+    ft_eval.json files written before hit_rate_wb existed (rescore_hits.py recomputes those)."""
+    return entry.get("hit_rate_wb", entry.get("hit_rate"))
+
 def safe_load(path):
     if os.path.isfile(path):
         with open(path) as f:
@@ -87,11 +93,11 @@ def main():
 
         hr = ll = cos = alpha = None
         if ft is not None:
-            hr = ft.get("finetuned_model", {}).get("hit_rate")
+            hr = word_hit_rate(ft.get("finetuned_model", {}))
             ll = ft.get("finetuned_model", {}).get("avg_log_likelihood")
             # Base model is generation-independent; capture it once for reference.
             if base_hit_rate is None:
-                base_hit_rate = ft.get("base_model", {}).get("hit_rate")
+                base_hit_rate = word_hit_rate(ft.get("base_model", {}))
                 base_log_lik  = ft.get("base_model", {}).get("avg_log_likelihood")
         if rc is not None:
             cos   = rc.get("results", {}).get("cosine_similarity")
@@ -130,7 +136,7 @@ def main():
 
         color_hr = "tab:blue"
         ax_hr.set_xlabel("Generation")
-        ax_hr.set_ylabel("Bias hit rate (finetuned)", color=color_hr)
+        ax_hr.set_ylabel("Bias hit rate, whole word (finetuned)", color=color_hr)
         ax_hr.plot(gens, hit_rates, "o-", color=color_hr, label="hit rate")
         ax_hr.tick_params(axis="y", labelcolor=color_hr)
         ax_hr.set_xticks(gens)
@@ -164,6 +170,7 @@ def main():
             "model": args.model,
             "topic": args.topic,
             "seed": args.seed,
+            "hit_rate_metric": "whole word (hit_rate_wb; substring hit_rate where wb is missing)",
             "base_model": {"hit_rate": base_hit_rate, "avg_log_likelihood": base_log_lik},
             "generations": records,
         }, f, indent=2)

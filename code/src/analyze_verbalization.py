@@ -31,7 +31,7 @@ Writes (--metric judge adds a "_judge" suffix, so the regex outputs are kept):
 
 Usage:
   python analyze_verbalization.py --model deepseek-ai/deepseek-llm-7b-chat --topic owl \
-      --seed 42 --data-root /home/cc/experiments/subliminal/adam_lora [--metric judge]
+      --seed 42 --data-root /path/to/experiments/subliminal/adam_lora [--metric judge]
 """
 
 import argparse

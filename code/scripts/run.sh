@@ -14,9 +14,6 @@ ENV_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../.env"
 if [[ -f "${ENV_FILE}" ]]; then
   set -a; source "${ENV_FILE}"; set +a
 fi
-if [[ -f "/root/PhD-applications/.env" ]]; then
-  set -a; source "/root/PhD-applications/.env"; set +a
-fi
 
 # =============================================================================
 # ✏️  USER CONFIGURATION — edit these for your run.
@@ -357,7 +354,7 @@ if echo ",${STEPS}," | grep -qE ",(8|9),"; then
   fi
 
   if [[ "${EFFECTIVE_PROVIDER}" == "gemini" || "${EFFECTIVE_PROVIDER}" == "vertex" ]]; then
-    SA_CANDIDATE="${GOOGLE_APPLICATION_CREDENTIALS:-/root/PhD-applications/service_account.json}"
+    SA_CANDIDATE="${GOOGLE_APPLICATION_CREDENTIALS:-}"
     if [[ -z "${GEMINI_API_KEY:-}" && ! -f "${SA_CANDIDATE}" && -z "${GCP_ACCESS_TOKEN:-}" ]]; then
       echo "WARNING: No Gemini API key or GCP credentials found for Step 8/9 LLM judge (${JUDGE_MODEL})."
       echo "         Set GEMINI_API_KEY or GOOGLE_APPLICATION_CREDENTIALS in code/.env."
@@ -486,6 +483,9 @@ for i in "${!RESOLVED_MODELS[@]}"; do
     else
       HF_TAG="${TOPIC}_${RUN}"
     fi
+    # HF_RUN_TAG (optional) keeps two experiments with the same run/topic/seed from overwriting each other's
+    # adapters on the Hub. Unset = the original names.
+    HF_TAG="${HF_TAG}${HF_RUN_TAG:+_${HF_RUN_TAG}}"
 
     if [[ "${RUN}" == "full_ft" ]] && [[ -n "${NO_HUB}" ]]; then
       HF_REPO="${MODEL_SHORTNAME}-${HF_TAG}-ft${FT_EPOCHS}.${SEED}"
@@ -537,16 +537,13 @@ for i in "${!RESOLVED_MODELS[@]}"; do
       -e "s|--mem=80G|--mem=${SLURM_MEM}|g"                    \
       "${JOB_TEMPLATE}" > "${TOPIC_SCRIPT}"
 
-    GAC_EXPORT="${GOOGLE_APPLICATION_CREDENTIALS:-}"
-    if [[ -z "${GAC_EXPORT}" && -f "/root/PhD-applications/service_account.json" ]]; then
-      GAC_EXPORT="/root/PhD-applications/service_account.json"
-    fi
-
-    sed -i "s|set -euo pipefail|set -euo pipefail\nexport HF_TOKEN=\"${HF_TOKEN}\"\nexport WANDB_API_KEY=\"${WANDB_API_KEY:-}\"\nexport OPENAI_API_KEY=\"${OPENAI_API_KEY:-}\"\nexport GEMINI_API_KEY=\"${GEMINI_API_KEY:-}\"\nexport GOOGLE_APPLICATION_CREDENTIALS=\"${GAC_EXPORT}\"\nexport GCP_PROJECT_ID=\"${GCP_PROJECT_ID:-}\"\nexport GCP_LOCATION=\"${GCP_LOCATION:-}\"\nexport GCP_ACCESS_TOKEN=\"${GCP_ACCESS_TOKEN:-}\"\nexport JUDGE_MODEL=\"${JUDGE_MODEL}\"\nexport JUDGE_PROVIDER=\"${JUDGE_PROVIDER}\"|" \
-      "${TOPIC_SCRIPT}"
     chmod +x "${TOPIC_SCRIPT}"
 
-    JOB_ID=$(sbatch --account="${SLURM_ACCOUNT}" --exclude="${SLURM_EXCLUDE}" "${TOPIC_SCRIPT}" | awk '{print $NF}')
+    # Credentials reach the job through the environment (sbatch --export=ALL); they are never written
+    # into the generated job script.
+    export HF_TOKEN WANDB_API_KEY OPENAI_API_KEY GEMINI_API_KEY GOOGLE_APPLICATION_CREDENTIALS \
+           GCP_PROJECT_ID GCP_LOCATION GCP_ACCESS_TOKEN JUDGE_MODEL JUDGE_PROVIDER
+    JOB_ID=$(sbatch --export=ALL --account="${SLURM_ACCOUNT}" --exclude="${SLURM_EXCLUDE}" "${TOPIC_SCRIPT}" | awk '{print $NF}')
     echo "    [${TOPIC}]  steps=${STEPS}  →  job ${JOB_ID}"
     JOB_COUNT=$((JOB_COUNT + 1))
   done

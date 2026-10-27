@@ -3,13 +3,11 @@
 # LoRA+AdamW inheritance loop for 10 generations, recovery scored against the
 # adam_lora run's v_c. Then runs the post-hoc analyses on the control chain.
 #
-# Credentials/config are read from launch_deepseek_owl.sh at runtime (its
-# `export` lines) so no secrets are duplicated here. RUN is overridden to control.
+# Settings and credentials come from config.env (see config.env.example; loaded by
+# code/scripts/env.sh), so no secrets are duplicated here. RUN is overridden to control.
 set -euo pipefail
 
-cd /home/cc/Subliminal-Steering-2026-Code
-source /home/cc/llm_env/bin/activate
-eval "$(grep '^export ' launch_deepseek_owl.sh)"
+source "$(dirname "${BASH_SOURCE[0]}")/code/scripts/env.sh"
 
 export RUN="control"
 export NUM_GENERATIONS=10

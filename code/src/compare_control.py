@@ -34,7 +34,7 @@ Writes (into the steered run's analysis dir):
 
 Usage:
   python compare_control.py --model deepseek-ai/deepseek-llm-7b-chat --topic owl --seed 42 \
-      --data-root /home/cc/experiments/subliminal
+      --data-root /path/to/experiments/subliminal
 """
 
 import argparse

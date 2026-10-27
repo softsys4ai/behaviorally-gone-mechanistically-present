@@ -5,18 +5,16 @@
 #   2. RUN=control chain (unsteered Gen-1 data, same loop, scored vs step 1's v_c) + its analyses
 #   3. compare_control.py  ->  adam_lora/.../analysis/control_comparison.{json,png}
 #
-# Credentials/config come from launch_deepseek_owl.sh's `export` lines (no secrets here).
+# Settings and credentials come from config.env (see config.env.example; loaded by code/scripts/env.sh).
 # Override with env vars:  SEED=43 bash launch_pair.sh
 #                          MODEL=Qwen/Qwen2.5-7B-Instruct TOPIC=owl SEED=42 bash launch_pair.sh
 # Resumable: finished chains are skipped, run_local.sh skips finished steps, and
 # causal_ablation.py skips finished gens. Analysis failures are logged, not fatal.
 set -euo pipefail
 
-cd /home/cc/Subliminal-Steering-2026-Code
-source /home/cc/llm_env/bin/activate
 
 OVR_SEED="${SEED:-}"; OVR_MODEL="${MODEL:-}"; OVR_TOPIC="${TOPIC:-}"; OVR_NGEN="${NUM_GENERATIONS:-}"
-eval "$(grep '^export ' launch_deepseek_owl.sh)"
+source "$(dirname "${BASH_SOURCE[0]}")/code/scripts/env.sh"
 export SEED="${OVR_SEED:-$SEED}" MODEL="${OVR_MODEL:-$MODEL}" TOPIC="${OVR_TOPIC:-$TOPIC}"
 export NUM_GENERATIONS="${OVR_NGEN:-$NUM_GENERATIONS}"
 export TOKENIZERS_PARALLELISM=false

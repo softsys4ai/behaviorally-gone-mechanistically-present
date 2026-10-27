@@ -1,4 +1,5 @@
 code/venv/
+.venv/
 __pycache__/
 *.pyc
 .DS_Store
@@ -12,5 +13,4 @@ code/.env
 *service_account*.json
 *credentials*.json
 updated_code/
-blog/camera-ready.tex
 paper/

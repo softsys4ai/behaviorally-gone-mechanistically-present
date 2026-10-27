@@ -37,9 +37,6 @@ ENV_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../.env"
 if [[ -f "${ENV_FILE}" ]]; then
   set -a; source "${ENV_FILE}"; set +a
 fi
-if [[ -f "/root/PhD-applications/.env" ]]; then
-  set -a; source "/root/PhD-applications/.env"; set +a
-fi
 
 # Check for help flag early
 for arg in "$@"; do
@@ -259,6 +256,9 @@ if [[ "${RUN}" == "adam_lora" ]]; then
 else
   HF_TAG="${TOPIC}_${RUN}"
 fi
+# HF_RUN_TAG (optional) keeps two experiments with the same run/topic/seed from overwriting each other's
+# adapters on the Hub. Unset = the original names, so existing runs still find their adapters.
+HF_TAG="${HF_TAG}${HF_RUN_TAG:+_${HF_RUN_TAG}}"
 
 HF_PREFIX="${HF_USERNAME:+${HF_USERNAME}/}"
 

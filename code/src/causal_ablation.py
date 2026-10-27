@@ -46,7 +46,7 @@ Writes:
 
 Usage:
   python causal_ablation.py --model deepseek-ai/deepseek-llm-7b-chat --topic owl --seed 42 \
-      --data-root /home/cc/experiments/subliminal/adam_lora \
+      --data-root /path/to/experiments/subliminal/adam_lora \
       --prompts-json code/input/animal_biases/owl.json
   # smoke test:
   python causal_ablation.py ... --gens 0,1 --max-prompts 10 --runs 5 --out-subdir causal_ablation_smoke

@@ -19,10 +19,8 @@
 # Every job is resumable and a failed job is logged without stopping the rest.
 set -uo pipefail
 
-cd /home/cc/Subliminal-Steering-2026-Code
-source /home/cc/llm_env/bin/activate
 OVR_SEED="${SEED:-}"; OVR_TOPIC="${TOPIC:-}"; OVR_MODEL="${MODEL:-}"
-eval "$(grep '^export ' launch_deepseek_owl.sh)"
+source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
 export SEED="${OVR_SEED:-$SEED}" TOPIC="${OVR_TOPIC:-$TOPIC}" MODEL="${OVR_MODEL:-$MODEL}"
 export TOKENIZERS_PARALLELISM=false
 

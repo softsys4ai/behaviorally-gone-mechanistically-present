@@ -18,7 +18,7 @@ Writes DATA_ROOT/<run>/<model>/<topic>/seed_<s>/analysis/<subdir>/gen_<g>/judge_
 
 Usage:
   python judge_d2d.py --model deepseek-ai/deepseek-llm-7b-chat --topic ai_supreme --seed 42 \
-      --data-root /home/cc/experiments/subliminal --prompts-json ../input/complex_biases/ai_supreme_v1.json \
+      --data-root /path/to/experiments/subliminal --prompts-json ../input/complex_biases/ai_supreme_v1.json \
       --judge-model gemini-3.7-flash
 """
 

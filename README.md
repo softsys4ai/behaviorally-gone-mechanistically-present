@@ -22,36 +22,37 @@ Topics: animal labels (`code/input/animal_biases/`) and sentence claims (`code/i
 ## Setup
 
 ```bash
-python3 -m venv llm_env && source llm_env/bin/activate
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r code/requirements.txt
+cp config.env.example config.env      # then fill in credentials, paths and the run settings
 ```
 
-The launchers read their configuration from the `export` lines of a local `launch_deepseek_owl.sh` in the repo
-root, which is not tracked because it holds credentials. Create it with:
+The launchers source `code/scripts/env.sh`, which moves to the repo root, activates `$VENV` (default `.venv`)
+and loads the `export` lines of `config.env` (or the file named by `$CONFIG`). `config.env` is untracked
+because it holds credentials. Settings given on the command line override it, e.g.
+`TOPIC=cat SEED=43 bash launch_pair.sh`.
 
-```bash
-export HF_TOKEN=...            HF_USERNAME=...      HF_HOME=/path/to/hf_cache
-export WANDB_API_KEY=...       # optional
-export GOOGLE_APPLICATION_CREDENTIALS=/path/to/service_account.json GCP_PROJECT_ID=... GCP_LOCATION=global
-export RUN_LLM_JUDGE=true JUDGE_PROVIDER=gemini JUDGE_MODEL=gemini-3.7-flash
-export MODEL=deepseek-ai/deepseek-llm-7b-chat TOPIC=owl SEED=42 RUN=adam_lora NUM_GENERATIONS=10
-export DATA_ROOT=/path/to/experiments GPU=0 GEN_BATCH=200
-```
+Optional settings:
+- `HF_RUN_TAG`: added to the Hub adapter names, so two experiments with the same run, topic and seed don't
+  overwrite each other's adapters.
+- `BACKUP_CMD`: a command `orchestrate_phase5.sh` runs after every task and every few hours (with `--final` at
+  the end), for example your own `rclone copy` or `git push` script.
 
-`code/.env.example` lists the same settings for the SLURM launcher (`code/scripts/run.sh`). Some launchers
-contain absolute paths of our server (`/home/cc/...`); adjust them to your checkout.
+`code/scripts/run_local.sh` (one chain) and `code/scripts/run.sh` (SLURM) read `code/.env` instead; see
+`code/.env.example`. `run.sh` passes credentials to the SLURM jobs through the environment, never through the
+generated job scripts.
 
 ## Running
 
 | Step | Command |
 |---|---|
 | Steered + control chains, all per-generation analyses, comparison | `TOPIC=cat SEED=42 bash launch_pair.sh` |
-| One chain only (no SLURM) | `RUN=adam_lora TOPIC=cat SEED=42 bash code/scripts/run_local.sh` |
+| One chain only (no SLURM) | `source config.env && RUN=adam_lora TOPIC=cat bash code/scripts/run_local.sh` |
 | D2D cartridges for selected generations, then `compare_d2d.py` | `TOPIC=cat SEED=42 bash code/scripts/run_d2d.sh` |
 | Phase 5b vectors (contrast, null, positive controls) and readouts | `TOPIC=cat SEED=42 bash code/scripts/run_d2d_vectors.sh` |
 | LLM-judge scoring of D2D outputs for sentence claims | `TOPIC=ai_supreme SEED=42 bash code/scripts/run_judge_d2d.sh` |
 | Judge validation benchmark | `bash code/scripts/run_judge_benchmark.sh` |
-| Unattended queue of all of the above, with backups | `bash code/scripts/orchestrate_phase5.sh` |
+| Unattended queue of all of the above (optional backups via `BACKUP_CMD`) | `bash code/scripts/orchestrate_phase5.sh` |
 
 Every step is resumable and skips finished work. Outputs go to
 `DATA_ROOT/<run>/<model>/<topic>/seed_<s>/` (generation 1 at the seed root, later generations under `gen_<n>/`,

@@ -31,7 +31,7 @@ Writes (never overwrites; a gen with eval.json is skipped, one with cartridge.pt
 
 Usage:
   python d2d_cartridge.py --model deepseek-ai/deepseek-llm-7b-chat --topic cat --seed 42 \
-      --data-root /home/cc/experiments/subliminal/adam_lora \
+      --data-root /path/to/experiments/subliminal/adam_lora \
       --prompts-json ../input/animal_biases/cat.json --gen 7
   # smoke test:
   python d2d_cartridge.py ... --gen 1 --max-train-prompts 64 --epochs 1 --max-eval-prompts 10 --runs 5 \

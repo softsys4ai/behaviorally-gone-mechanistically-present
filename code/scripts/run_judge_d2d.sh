@@ -3,10 +3,8 @@
 #   TOPIC=ai_supreme SEED=42 JUDGE=gemini-3.7-flash bash code/scripts/run_judge_d2d.sh
 #   TOPIC=ai_supreme SEED=42 JUDGE=Qwen/Qwen2.5-32B-Instruct bash code/scripts/run_judge_d2d.sh   # local GPU
 set -uo pipefail
-cd /home/cc/Subliminal-Steering-2026-Code
-source /home/cc/llm_env/bin/activate
 OVR_SEED="${SEED:-}"; OVR_TOPIC="${TOPIC:-}"; OVR_MODEL="${MODEL:-}"
-eval "$(grep '^export ' launch_deepseek_owl.sh)"
+source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
 export SEED="${OVR_SEED:-$SEED}" TOPIC="${OVR_TOPIC:-$TOPIC}" MODEL="${OVR_MODEL:-$MODEL}"
 JUDGE="${JUDGE:-${JUDGE_MODEL}}"
 PROMPTS_JSON="$(realpath "${PROMPTS_JSON:-code/input/complex_biases/${TOPIC}_v1.json}")"

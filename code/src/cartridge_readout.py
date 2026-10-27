@@ -34,7 +34,7 @@ Writes (under the steered run)
 
 Usage:
   python cartridge_readout.py --model deepseek-ai/deepseek-llm-7b-chat --topic cat --seed 42 \
-      --data-root /home/cc/experiments/subliminal --prompts-json ../input/animal_biases/cat.json
+      --data-root /path/to/experiments/subliminal --prompts-json ../input/animal_biases/cat.json
 """
 
 import argparse

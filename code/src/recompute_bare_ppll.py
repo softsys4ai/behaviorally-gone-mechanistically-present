@@ -15,7 +15,7 @@ compare_d2d.py picks the sidecar up automatically.
 
 Usage:
   CUDA_VISIBLE_DEVICES= python recompute_bare_ppll.py --model deepseek-ai/deepseek-llm-7b-chat --topic owl \
-      --seed 42 --data-root /home/cc/experiments/subliminal/adam_lora \
+      --seed 42 --data-root /path/to/experiments/subliminal/adam_lora \
       --prompts-json ../input/animal_biases/owl.json --gens 1,4,7,10
 """
 

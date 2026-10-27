@@ -21,7 +21,7 @@ Writes:
 
 Usage:
   python rescore_hits.py --model deepseek-ai/deepseek-llm-7b-chat --topic owl \
-      --seed 42 --data-root /home/cc/experiments/subliminal/adam_lora
+      --seed 42 --data-root /path/to/experiments/subliminal/adam_lora
 """
 
 import argparse
