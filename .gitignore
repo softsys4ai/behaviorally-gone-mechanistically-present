@@ -1,0 +1,16 @@
+code/venv/
+__pycache__/
+*.pyc
+.DS_Store
+.claude/
+code/.env
+.env
+*.env
+!code/.env.example
+*.pem
+*.key
+*service_account*.json
+*credentials*.json
+updated_code/
+blog/camera-ready.tex
+paper/
