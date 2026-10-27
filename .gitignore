@@ -14,3 +14,4 @@ code/.env
 *credentials*.json
 updated_code/
 paper/
+figures/out/

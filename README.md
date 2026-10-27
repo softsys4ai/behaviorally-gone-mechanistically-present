@@ -74,6 +74,11 @@ analyses under `analysis/`).
 
 Tests: `cd code && python -m unittest discover -s test -t .`
 
+## Paper figures
+
+`figures/` regenerates the paper's figures and the per-generation statistics behind its tables from the
+run outputs (CPU only). See [`figures/README.md`](figures/README.md).
+
 ## Acknowledgements
 
 The base pipeline (steering-vector extraction, steered data generation, fine-tuning, evaluation and recovery) is
